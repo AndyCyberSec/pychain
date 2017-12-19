@@ -26,27 +26,24 @@ class Block(object):
             self.nonce += 1
             self.hash = self.hash_calculation()
 
-        # print ("Block mined:" + self.hash + " nonce:" + str(self.nonce))#
+        # print("Block mined:" + self.hash + " nonce:" + str(self.nonce))
 
 
 class BlockChain(object):
 
     def __init__(self, difficulty):
-        self.chain = [self.genesis_block]
+        self.chain = [self.genesis_block()]
         self.difficulty = difficulty
 
-    @staticmethod
     def genesis_block(self):
         return Block(2, 0, "GENESIS", "xxx")
 
-    @staticmethod
     def get_prev_block(self):
-        block = self.chain[len(self.chain)-1]
-        return block.hash
+        return self.chain[len(self.chain)-1]
 
     def add_block(self, new_block):
 
-        new_block.previous_hash = self.get_prev_block
+        new_block.previous_hash = self.get_prev_block().hash
         new_block.block_mining()
         self.chain.append(new_block)
 
@@ -56,18 +53,15 @@ class BlockChain(object):
         for k, block in enumerate(self.chain):
 
             if k > 0:
-                print(dir(block))
                 prev_block = self.chain[k-1]
-                if block.hash != block.hash_calculation:
+
+                if block.hash != block.hash_calculation():
                     return False
                 if block.previous_hash != prev_block.hash:
                     return False
-
             else:
-
                 pass
         return True
-
 
 diff = 3
 
@@ -80,9 +74,10 @@ b = BlockChain(diff)
 b.add_block(Block(diff, 1, data1))
 b.add_block(Block(diff, 2, data2))
 b.add_block(Block(diff, 3, data3))
+# uncomment line below to invalidate the chain by tampering 1st block with new data (PoW)
 # b.chain[1].hash = "fega" #PoW
 b.add_block(Block(diff, 4, data4))
-print("Chain is valid?: " + str(b.chain_validation))
+print("Chain is valid?: " + str(b.chain_validation) + "\r\n")
 
-for elements in b.chain:
-    print("data: " + elements.data + " hash: " + elements.hash)
+# for elements in b.chain:
+    # print("data: " + elements.data + " hash: " + elements.hash)
