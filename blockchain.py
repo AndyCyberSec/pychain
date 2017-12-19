@@ -75,7 +75,7 @@ b.add_block(Block(diff, 1, data1))
 b.add_block(Block(diff, 2, data2))
 b.add_block(Block(diff, 3, data3))
 # uncomment line below to invalidate the chain by tampering 1st block with new data (PoW)
-# b.chain[1].hash = "fega" #PoW
+# b.chain[1].hash = "test" #PoW
 b.add_block(Block(diff, 4, data4))
 print("Chain is valid?: " + str(b.chain_validation) + "\r\n")
 
