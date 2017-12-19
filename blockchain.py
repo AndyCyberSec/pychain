@@ -2,100 +2,87 @@ import hashlib
 import time
 import json
 
-class Block:
 
-	def __init__(self, difficulty, index, data, previousHash=''):
+class Block(object):
 
-		self.difficulty = difficulty
-		self.nonce = 0
+    def __init__(self, difficulty, index, data, previous_hash=''):
+        self.difficulty = difficulty
+        self.nonce = 0
 
-		self.index = index 
-		self.previousHash = previousHash 
-		self.data = data
-		self.timestamp = time.time()
-		self.hash = self.hashCalculation()
-		
-	#builds the current block hash
-	def hashCalculation(self):
+        self.index = index
+        self.previous_hash = previous_hash
+        self.data = data
+        self.timestamp = time.time()
+        self.hash = self.hash_calculation()
 
-		return hashlib.sha256(str(self.index).encode() + str(self.data).encode() + str(self.timestamp).encode() + str(self.nonce).encode()).hexdigest()
+    def hash_calculation(self):
 
-	#mine the block
-	def blockMining(self):
+        return hashlib.sha256(str(self.index).encode() + str(self.data).encode() + str(self.timestamp).encode() +
+                              str(self.nonce).encode()).hexdigest()
 
-		#check if the firsts n(difficulty) characters of the hash containing n(difficulty) zeroes
-		#if so, loop exits and we have hash that begins with n(dofficulty) zeroes
-		while(self.hash[0:self.difficulty] != ("0" * self.difficulty)):
+    def block_mining(self):
 
-			self.nonce += 1
-			self.hash = self.hashCalculation()
+        while self.hash[0:self.difficulty] != "0" * self.difficulty:
+            self.nonce += 1
+            self.hash = self.hash_calculation()
 
-		#print ("Block mined:" + self.hash + " nonce:" + str(self.nonce))
+        # print ("Block mined:" + self.hash + " nonce:" + str(self.nonce))#
 
 
+class BlockChain(object):
 
-class BlockChain():
+    def __init__(self, difficulty):
+        self.chain = [self.genesis_block]
+        self.difficulty = difficulty
 
-	def __init__(self, difficulty):
+    @staticmethod
+    def genesis_block(self):
+        return Block(2, 0, "GENESIS", "xxx")
 
-		self.chain = [self.genesisBlock()]
-		self.difficulty = difficulty
+    @staticmethod
+    def get_prev_block(self):
+        block = self.chain[len(self.chain)-1]
+        return block.hash
 
-	def genesisBlock(self):
+    def add_block(self, new_block):
 
-		self.genesis = Block(2, 0, "GENESIS", "passphrase")
-		return self.genesis
+        new_block.previous_hash = self.get_prev_block
+        new_block.block_mining()
+        self.chain.append(new_block)
 
-	def getPrevBlock(self):
+    @property
+    def chain_validation(self):
 
-		self.lastBlock = self.chain[len(self.chain)-1]
-		return self.lastBlock
+        for k, block in enumerate(self.chain):
 
-	def addBlock(self, newBlock):
+            if k > 0:
+                print(dir(block))
+                prev_block = self.chain[k-1]
+                if block.hash != block.hash_calculation:
+                    return False
+                if block.previous_hash != prev_block.hash:
+                    return False
 
-		self.newBlock = newBlock
-		self.newBlock.previousHash = self.getPrevBlock().hash;
-		self.newBlock.blockMining()
-		self.chain.append(self.newBlock)
+            else:
 
-	def chainValidation(self):
-
-		for k, block in enumerate(self.chain):
-
-			if k > 0: #skip the genesis block who has not previous hash
-
-				prevBlock = self.chain[k-1]
-				curBlock = block
-
-				if curBlock.hash != curBlock.hashCalculation():
-					return False
-				if curBlock.previousHash != prevBlock.hash:
-					return False
-
-			else:
-
-				pass
-
-		return True
+                pass
+        return True
 
 
-difficulty = 3
+diff = 3
 
-data1 = json.dumps({'username':'Pippo', 'amount':1.00}, sort_keys=True, indent=4)
-data2 = json.dumps({'username':'Baudo', 'amount':5.00}, sort_keys=True, indent=4)
-data3 = json.dumps({'username':'Pippo', 'amount':1.00}, sort_keys=True, indent=4)
-data4 = json.dumps({'username':'Pippo', 'amount':1.00}, sort_keys=True, indent=4)
+data1 = json.dumps({'username': 'Pippo', 'amount': 1.00}, sort_keys=True, indent=4)
+data2 = json.dumps({'username': 'Baudo', 'amount': 5.00}, sort_keys=True, indent=4)
+data3 = json.dumps({'username': 'Pippo', 'amount': 1.00}, sort_keys=True, indent=4)
+data4 = json.dumps({'username': 'Pippo', 'amount': 1.00}, sort_keys=True, indent=4)
 
-
-print(data1)
-
-b = BlockChain(difficulty)
-b.addBlock(Block(difficulty, 1, data1))
-b.addBlock(Block(difficulty, 2, data2))
-b.addBlock(Block(difficulty, 3, data3))
-#b.chain[1].hash = "fega" #PoW
-b.addBlock(Block(difficulty, 4, data4))
-print("Chain is valid?: " + str(b.chainValidation()))
+b = BlockChain(diff)
+b.add_block(Block(diff, 1, data1))
+b.add_block(Block(diff, 2, data2))
+b.add_block(Block(diff, 3, data3))
+# b.chain[1].hash = "fega" #PoW
+b.add_block(Block(diff, 4, data4))
+print("Chain is valid?: " + str(b.chain_validation))
 
 for elements in b.chain:
-	print("data: " + elements.data + " hash: " + elements.hash)
+    print("data: " + elements.data + " hash: " + elements.hash)
